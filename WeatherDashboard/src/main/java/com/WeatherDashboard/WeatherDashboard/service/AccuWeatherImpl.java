@@ -98,7 +98,7 @@ public class AccuWeatherImpl implements AccuWeather {
                 if(weather.getDate().compareTo(dailyWeather.getDate()) == 0){
                     weather.setMinTemperature(dailyWeather.getMinTemperature());
                     weather.setMaxTemperature(dailyWeather.getMaxTemperature());
-                } else {
+                } else if(weather.getDate().compareTo(dailyWeather.getDate()) < 0) {
                     dailyWeathers.add(dailyWeather);
                 }
             }
