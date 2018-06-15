@@ -1,7 +1,9 @@
 package com.WeatherDashboard.WeatherDashboard.service;
 
+import com.WeatherDashboard.WeatherDashboard.domain.City;
 import com.WeatherDashboard.WeatherDashboard.domain.DailyWeather;
 import com.WeatherDashboard.WeatherDashboard.domain.Weather;
+import com.WeatherDashboard.WeatherDashboard.domain.WeatherRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,10 @@ public class ForescastIOImpl implements ForescastIO {
     private static final long timestampConstant = 1000l;
 
     @Override
-    public Weather getWeather(String latitude, String longitude, String temperatureUnit) {
+    public Weather getWeather(WeatherRequest weatherRequest, City city) {
+        String latitude = String.valueOf(city.getLatitude());
+        String longitude = String.valueOf(city.getLongitude());
+        String temperatureUnit = weatherRequest.getUnitMeasure();
         Weather weather = new Weather();
         try {
             URL url = new URL(address+key+"/"+latitude+","+longitude+exclude+unit+getTemperatureUnits(temperatureUnit));
@@ -58,10 +63,8 @@ public class ForescastIOImpl implements ForescastIO {
             }
             conn.disconnect();
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception : " + e.getMessage());
         }
         return weather;
     }
@@ -104,7 +107,7 @@ public class ForescastIOImpl implements ForescastIO {
             }
             weather.setDailyWeathers(dailyWeathers);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception : " + e.getMessage());
         }
         return weather;
     }

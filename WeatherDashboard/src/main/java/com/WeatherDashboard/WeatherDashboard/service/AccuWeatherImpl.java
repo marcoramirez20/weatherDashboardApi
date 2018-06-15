@@ -70,10 +70,8 @@ public class AccuWeatherImpl implements AccuWeather {
             }
             conn.disconnect();
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception : " + e.getMessage());
         }
         return weather;
     }
@@ -106,7 +104,7 @@ public class AccuWeatherImpl implements AccuWeather {
             }
             weather.setDailyWeathers(dailyWeathers);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception : " + e.getMessage());
         }
         return weather;
     }
@@ -137,10 +135,8 @@ public class AccuWeatherImpl implements AccuWeather {
             }
             conn.disconnect();
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception : " + e.getMessage());
         }
         return weather;
     }
@@ -163,7 +159,7 @@ public class AccuWeatherImpl implements AccuWeather {
                     .get(ifTemperatureMetricUnits(temperatureUnit) ? "Metric" : "Imperial");
             weather.setTemperature(Double.valueOf(String.valueOf(aux.get("Value"))));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception : " + e.getMessage());
         }
         return weather;
     }

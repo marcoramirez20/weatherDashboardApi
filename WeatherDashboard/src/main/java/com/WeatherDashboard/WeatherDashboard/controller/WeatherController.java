@@ -23,14 +23,19 @@ public class WeatherController {
     @RequestMapping(method = RequestMethod.POST, value = "/getWeather")
     @ResponseBody
     public Weather getWeather(@RequestBody WeatherRequest weatherRequest){
-        Weather weather = new Weather();
-        if(weatherRequest == null){
-            throw new IllegalArgumentException("Request is null");
-        }
+        isWeatherRequestNull(weatherRequest);
 
+        Weather weather = new Weather();
         weather = chooseWeatherApiService(weatherRequest);
 
         return weather;
+    }
+
+    private void isWeatherRequestNull(WeatherRequest weatherRequest){
+        if(weatherRequest == null || weatherRequest.getService() == null || weatherRequest.getUnitMeasure() == null
+                || weatherRequest.getCity() == null){
+            throw new IllegalArgumentException("Request is null");
+        }
     }
 
     private Weather chooseWeatherApiService(WeatherRequest weatherRequest) {
@@ -42,8 +47,7 @@ public class WeatherController {
                 weather = accuWeather.getWeather(weatherRequest, city);
                 break;
             default:
-                weather = forescastIO.getWeather(String.valueOf(city.getLatitude()),
-                        String.valueOf(city.getLongitude()), weatherRequest.getUnitMeasure());
+                weather = forescastIO.getWeather(weatherRequest, city);
                 break;
         }
         weather.setCityName(city.getCityName());
