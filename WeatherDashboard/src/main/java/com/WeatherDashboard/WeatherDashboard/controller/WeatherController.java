@@ -19,6 +19,7 @@ public class WeatherController {
     @Autowired
     private AccuWeather accuWeather;
 
+    @CrossOrigin
     @RequestMapping(method = RequestMethod.POST, value = "/getWeather")
     @ResponseBody
     public Weather getWeather(@RequestBody WeatherRequest weatherRequest){
