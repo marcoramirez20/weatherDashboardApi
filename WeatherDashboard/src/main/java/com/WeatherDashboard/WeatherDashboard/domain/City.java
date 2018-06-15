@@ -1,21 +1,29 @@
 package com.WeatherDashboard.WeatherDashboard.domain;
 
-public class ForecastIOCity{
-
-    public ForecastIOCity() {
+public class City {
+    public City() {
     }
 
-    private Integer id;
+    private Integer openWeatherMapId;
+    private Integer accuWeatherId;
     private String cityName;
     private Double latitude;
     private Double longitude;
 
-    public Integer getId() {
-        return id;
+    public Integer getOpenWeatherMapId() {
+        return openWeatherMapId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setOpenWeatherMapId(Integer openWeatherMapId) {
+        this.openWeatherMapId = openWeatherMapId;
+    }
+
+    public Integer getAccuWeatherId() {
+        return accuWeatherId;
+    }
+
+    public void setAccuWeatherId(Integer accuWeatherId) {
+        this.accuWeatherId = accuWeatherId;
     }
 
     public String getCityName() {

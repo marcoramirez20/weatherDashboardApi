@@ -20,14 +20,17 @@ import java.util.List;
 @Service
 public class ForescastIOImpl implements ForescastIO {
 
-    private final String requestMethod = "GET";
-    private final String address = "https://api.darksky.net/forecast";
-    private final String key = "/5596433666541c0c3d7d72d7c364159a";
-    private final String exclude = "?exclude=minutely,hourly";
-    private final String unit = "&units=";
-    private final String unitsSI = "si";
-    private final String unitsUs = "us";
-    private final int codeHTTPOK = 200;
+    private static final String requestMethod = "GET";
+    private static final String address = "https://api.darksky.net/forecast";
+    private static final String key = "/5596433666541c0c3d7d72d7c364159a";
+    private static final String exclude = "?exclude=minutely,hourly";
+    private static final String unit = "&units=";
+    private static final String unitsSI = "si";
+    private static final String unitsUs = "us";
+    private static final int codeHTTPOK = 200;
+    private static final String applicationJson = "application/json";
+    private static final String requestAccept = "Accept";
+    private static final long timestampConstant = 1000l;
 
     @Override
     public Weather getWeather(String latitude, String longitude, String temperatureUnit) {
@@ -36,7 +39,7 @@ public class ForescastIOImpl implements ForescastIO {
             URL url = new URL(address+key+"/"+latitude+","+longitude+exclude+unit+getTemperatureUnits(temperatureUnit));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod(requestMethod);
-            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty(requestAccept, applicationJson);
 
             if (codeHTTPOK != conn.getResponseCode()) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -53,12 +56,11 @@ public class ForescastIOImpl implements ForescastIO {
                 weather = getWeatherFromJson(new JSONObject(output));
                 break;
             }
-
             conn.disconnect();
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return weather;
@@ -77,7 +79,7 @@ public class ForescastIOImpl implements ForescastIO {
         try {
             JSONObject aux = (JSONObject) jsonObject.get("currently");
             weather.setTemperature(Double.valueOf(String.valueOf(aux.get("temperature"))));
-            weather.setDate((new Timestamp(Long.valueOf(String.valueOf(aux.get("time")))*1000l)).toLocalDateTime()
+            weather.setDate((new Timestamp(Long.valueOf(String.valueOf(aux.get("time")))*timestampConstant)).toLocalDateTime()
                     .toLocalDate());
             weather.setDescription((String) aux.get("summary"));
             aux = (JSONObject) jsonObject.get("daily");
@@ -91,7 +93,7 @@ public class ForescastIOImpl implements ForescastIO {
                 dailyWeather.setDescription((String) aux.get("summary"));
                 dailyWeather.setMinTemperature(Double.valueOf(String.valueOf(aux.get("temperatureLow"))));
                 dailyWeather.setMaxTemperature(Double.valueOf(String.valueOf(aux.get("temperatureHigh"))));
-                dailyWeather.setDate((new Timestamp(Long.valueOf(String.valueOf(aux.get("time")))*1000l))
+                dailyWeather.setDate((new Timestamp(Long.valueOf(String.valueOf(aux.get("time")))*timestampConstant))
                         .toLocalDateTime().toLocalDate());
                 if(weather.getDate().compareTo(dailyWeather.getDate()) == 0){
                     weather.setMinTemperature(dailyWeather.getMinTemperature());

@@ -1,14 +1,13 @@
 package com.WeatherDashboard.WeatherDashboard.controller;
 
-import com.WeatherDashboard.WeatherDashboard.domain.ForecastIOCity;
-import com.WeatherDashboard.WeatherDashboard.domain.InputData;
+import com.WeatherDashboard.WeatherDashboard.domain.City;
+import com.WeatherDashboard.WeatherDashboard.domain.WeatherRequest;
 import com.WeatherDashboard.WeatherDashboard.domain.Weather;
+import com.WeatherDashboard.WeatherDashboard.service.AccuWeather;
 import com.WeatherDashboard.WeatherDashboard.service.ForescastIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequestMapping("/weather")
 @RestController
@@ -17,61 +16,78 @@ public class WeatherController {
     @Autowired
     private ForescastIO forescastIO;
 
+    @Autowired
+    private AccuWeather accuWeather;
+
     @RequestMapping(method = RequestMethod.POST, value = "/getWeather")
     @ResponseBody
-    public Weather getWeather(@RequestBody InputData inputData){
-        if(inputData == null){
+    public Weather getWeather(@RequestBody WeatherRequest weatherRequest){
+        Weather weather = new Weather();
+        if(weatherRequest == null){
             throw new IllegalArgumentException("Request is null");
         }
-        ForecastIOCity forecastIOCity = getForecastIOCity(inputData.getCity());
 
-        Weather weather = forescastIO.getWeather(String.valueOf(forecastIOCity.getLatitude()),
-                String.valueOf(forecastIOCity.getLongitude()), inputData.getUnitMeasure());
-        weather.setCityName(forecastIOCity.getCityName());
+        weather = chooseWeatherApiService(weatherRequest);
 
         return weather;
     }
 
-    private ForecastIOCity getForecastIOCity(String cityName){
-        ForecastIOCity forecastIOCity = new ForecastIOCity();
-        switch (cityName) {
-            /*case "Santiago":
-                forecastIOCity.setCityName("Santiago");
-                forecastIOCity.setId(3871336);
-                forecastIOCity.setLatitude(-33.4378d);
-                forecastIOCity.setLongitude(-70.6504d);
-                break;*/
-            case "Caracas":
-                forecastIOCity.setCityName("Caracas");
-                forecastIOCity.setId(3646738);
-                forecastIOCity.setLatitude(10.5061d);
-                forecastIOCity.setLongitude(-66.9146d);
-                break;
-            case "Lima":
-                forecastIOCity.setCityName("Lima");
-                forecastIOCity.setId(3936456);
-                forecastIOCity.setLatitude(-12.0621d);
-                forecastIOCity.setLongitude(-77.0365d);
-                break;
-            case "Bogota":
-                forecastIOCity.setCityName("Bogota");
-                forecastIOCity.setId(3688689);
-                forecastIOCity.setLatitude(4.5981d);
-                forecastIOCity.setLongitude(-74.0761d);
-                break;
-            case "Buenos Aires":
-                forecastIOCity.setId(3433955);
-                forecastIOCity.setCityName("Buenos Aires");
-                forecastIOCity.setLatitude(-34.6076d);
-                forecastIOCity.setLongitude(-58.4371d);
+    private Weather chooseWeatherApiService(WeatherRequest weatherRequest) {
+        Weather weather = new Weather();
+
+        City city = getCity(weatherRequest.getCity());
+        switch (weatherRequest.getService()) {
+            case "AccuWeather":
+                weather = accuWeather.getWeather(weatherRequest, city);
                 break;
             default:
-                forecastIOCity.setCityName("Santiago");
-                forecastIOCity.setId(3871336);
-                forecastIOCity.setLatitude(-33.4378d);
-                forecastIOCity.setLongitude(-70.6504d);
+                weather = forescastIO.getWeather(String.valueOf(city.getLatitude()),
+                        String.valueOf(city.getLongitude()), weatherRequest.getUnitMeasure());
                 break;
         }
-        return forecastIOCity;
+        weather.setCityName(city.getCityName());
+        return weather;
+    }
+
+    private City getCity(String cityName){
+        City city = new City();
+        switch (cityName) {
+            case "Caracas":
+                city.setCityName("Caracas");
+                city.setOpenWeatherMapId(3646738);
+                city.setAccuWeatherId(353020);
+                city.setLatitude(10.5061d);
+                city.setLongitude(-66.9146d);
+                break;
+            case "Lima":
+                city.setCityName("Lima");
+                city.setOpenWeatherMapId(3936456);
+                city.setAccuWeatherId(264120);
+                city.setLatitude(-12.0621d);
+                city.setLongitude(-77.0365d);
+                break;
+            case "Bogota":
+                city.setCityName("Bogotá");
+                city.setOpenWeatherMapId(3688689);
+                city.setAccuWeatherId(107487);
+                city.setLatitude(4.5981d);
+                city.setLongitude(-74.0761d);
+                break;
+            case "Buenos Aires":
+                city.setCityName("Ciudad Autonoma de Buenos Aires");
+                city.setOpenWeatherMapId(3433955);
+                city.setAccuWeatherId(7894);
+                city.setLatitude(-34.6076d);
+                city.setLongitude(-58.4371d);
+                break;
+            default:
+                city.setCityName("Santiago");
+                city.setOpenWeatherMapId(3871336);
+                city.setAccuWeatherId(60449);
+                city.setLatitude(-33.4378d);
+                city.setLongitude(-70.6504d);
+                break;
+        }
+        return city;
     }
 }

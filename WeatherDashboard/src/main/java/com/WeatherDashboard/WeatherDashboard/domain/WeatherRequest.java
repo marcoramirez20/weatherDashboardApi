@@ -1,8 +1,8 @@
 package com.WeatherDashboard.WeatherDashboard.domain;
 
-public class InputData {
+public class WeatherRequest {
 
-    public InputData(){
+    public WeatherRequest(){
 
     }
 
